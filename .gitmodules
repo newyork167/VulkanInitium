@@ -1,19 +1,19 @@
 [submodule "VulkanInitium/Libraries/assimp"]
-	path = VulkanInitium/Libraries/assimp
+	path = VulkanInitium/Third Party/assimp
 	url = https://github.com/assimp/assimp.git
 [submodule "VulkanInitium/Libraries/glad"]
-	path = VulkanInitium/Libraries/glad
+	path = VulkanInitium/Third Party/glad
 	url = https://github.com/Dav1dde/glad.git
 	branch = c
 [submodule "VulkanInitium/Libraries/glfw"]
-	path = VulkanInitium/Libraries/glfw
+	path = VulkanInitium/Third Party/glfw
 	url = https://github.com/glfw/glfw.git
 [submodule "VulkanInitium/Libraries/glm"]
-	path = VulkanInitium/Libraries/glm
+	path = VulkanInitium/Third Party/glm
 	url = https://github.com/g-truc/glm.git
 [submodule "VulkanInitium/Libraries/stb"]
-	path = VulkanInitium/Libraries/stb
+	path = VulkanInitium/Third Party/stb
 	url = https://github.com/nothings/stb.git
 [submodule "VulkanInitium/Libraries/bullet"]
-	path = VulkanInitium/Libraries/bullet
+	path = VulkanInitium/Third Party/bullet
 	url = https://github.com/bulletphysics/bullet3.git

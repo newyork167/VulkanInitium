@@ -8,19 +8,19 @@ set(_SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING)
 option(GLFW_BUILD_DOCS OFF)
 option(GLFW_BUILD_EXAMPLES OFF)
 option(GLFW_BUILD_TESTS OFF)
-add_subdirectory(VulkanInitium/Libraries/glfw)
+add_subdirectory("VulkanInitium/Third Party/glfw")
 
 option(ASSIMP_BUILD_ASSIMP_TOOLS OFF)
 option(ASSIMP_BUILD_SAMPLES OFF)
 option(ASSIMP_BUILD_TESTS OFF)
-add_subdirectory(VulkanInitium/Libraries/assimp)
+add_subdirectory("VulkanInitium/Third Party/assimp")
 
 option(BUILD_BULLET2_DEMOS OFF)
 option(BUILD_CPU_DEMOS OFF)
 option(BUILD_EXTRAS OFF)
 option(BUILD_OPENGL3_DEMOS OFF)
 option(BUILD_UNIT_TESTS OFF)
-add_subdirectory(VulkanInitium/Libraries/bullet)
+add_subdirectory("VulkanInitium/Third Party/bullet")
 
 if(MSVC)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4")
@@ -32,14 +32,14 @@ else()
 endif()
 
 include_directories(VulkanInitium/Headers/
-                    VulkanInitium/Libraries/assimp/include/
-                    VulkanInitium/Libraries/bullet/src/
-                    VulkanInitium/Libraries/glad/include/
-                    VulkanInitium/Libraries/glfw/include/
-                    VulkanInitium/Libraries/glm/
-                    VulkanInitium/Libraries/stb/)
+                    "VulkanInitium/Third Party/assimp/include/"
+                    "VulkanInitium/Third Party/bullet/src/"
+                    "VulkanInitium/Third Party/glad/include/"
+                    "VulkanInitium/Third Party/glfw/include/"
+                    "VulkanInitium/Third Party/glm/"
+                    "VulkanInitium/Third Party/stb/")
 
-file(GLOB LIBRARIES_SOURCES VulkanInitium/Libraries/glad/src/glad.c)
+file(GLOB THIRD_PARTY_SOURCES "VulkanInitium/Third Party/glad/src/glad.c")
 file(GLOB PROJECT_HEADERS VulkanInitium/Headers/*.hpp)
 file(GLOB PROJECT_SOURCES VulkanInitium/Sources/*.cpp)
 file(GLOB PROJECT_SHADERS VulkanInitium/Shaders/*.comp
@@ -55,13 +55,13 @@ file(GLOB PROJECT_CONFIGS CMakeLists.txt
 source_group("Headers" FILES ${PROJECT_HEADERS})
 source_group("Shaders" FILES ${PROJECT_SHADERS})
 source_group("Sources" FILES ${PROJECT_SOURCES})
-source_group("Libraries" FILES ${LIBRARIES_SOURCES})
+source_group("Third Party" FILES ${THIRD_PARTY_SOURCES})
 
 add_definitions(-DGLFW_INCLUDE_NONE
                 -DPROJECT_SOURCE_DIR=\"${PROJECT_SOURCE_DIR}\")
 add_executable(${PROJECT_NAME} ${PROJECT_SOURCES} ${PROJECT_HEADERS}
                                ${PROJECT_SHADERS} ${PROJECT_CONFIGS}
-                               ${LIBRARIES_SOURCES})
+                               ${THIRD_PARTY_SOURCES})
 target_link_libraries(${PROJECT_NAME} assimp glfw
                       ${GLFW_LIBRARIES} ${GLAD_LIBRARIES}
                       BulletDynamics BulletCollision LinearMath)
