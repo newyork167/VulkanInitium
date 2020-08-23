@@ -6,7 +6,7 @@
 Following in the vein of the amazing [Glitter](https://github.com/Polytonic/Glitter) by [@Polytonic](https://github.com/Polytonic), here is a barebones repo for starting your [Vulkan](https://www.khronos.org/vulkan/) projects!
 
 ## Pulling
-```git clone --recurse-submodules -j8 git@github.com:newyork167/CMake-OpenGL.git```
+```git clone --recurse-submodules -j8 https://github.com/newyork167/VulkanInitium```
 
 *The -j8 allows multiple modules to be pulled at once to be faster*
 
