@@ -32,5 +32,5 @@ For Mac:
 
 Of course you can use any IDE/Text Editor (vi, vim, not emacs, nano, etc...) and just use the CMake to do the building but for beginners it's generally easier to have an IDE that will allow you to get going out of the gate.  
 
-### Future Plans
+## Future Plans
 I will make branches for basic rendering as I have time, and to the base branch I will add in the simple default cube in a non-intrusive way.
