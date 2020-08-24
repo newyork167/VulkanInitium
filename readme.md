@@ -3,7 +3,7 @@
 <!-- ![Vulkan](https://cdn.arstechnica.net/wp-content/uploads/2016/02/vulkan.jpg) -->
 <!-- <sub><sup>Image credit <a href="https://arstechnica.com/gaming/2016/02/vulkan-benchmarks-a-boost-for-amd-and-nvidia-but-theres-work-to-be-done/">Ars Technica</a></sup></sub> -->
 
-Following in the vein of the amazing [Glitter](https://github.com/Polytonic/Glitter) by [@Polytonic](https://github.com/Polytonic), here is a barebones repo for starting your [Vulkan](https://www.khronos.org/vulkan/) projects!
+Following in the vein (and building upon) of the amazing [Glitter](https://github.com/Polytonic/Glitter) by [@Polytonic](https://github.com/Polytonic), here is a barebones repo for starting your [Vulkan](https://www.khronos.org/vulkan/) projects!
 
 ## Pulling
 ```git clone --recurse-submodules -j8 https://github.com/newyork167/VulkanInitium```
