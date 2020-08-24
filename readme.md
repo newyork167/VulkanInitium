@@ -18,6 +18,8 @@ I've found that attempting to get beginner developers or even seasoned developer
 This repo contains a basic main file and submodule links to common libraries that are used within computer graphics.
 
 ### Prerequisites
+Vulkan Drivers: [Nvidia](https://developer.nvidia.com/vulkan-driver), [AMD](http://gpuopen.com/gaming-product/vulkan/), [Dev Builds / Source Code](https://vulkan.lunarg.com/sdk/home)
+
 For Windows:
 - Visual Studio IDE (tested on VS 2017+ but should be fine on any which supports CMake), CLion, Code::Blocks, or any C/C++ IDE
 - CMake 3.1+: https://cmake.org/download/

@@ -1,6 +1,19 @@
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 3.17)
 project(VulkanInitium)
 set(CMAKE_CXX_STANDARD 17)
+
+# Setup and find Vulkan SDK
+if(WIN32)
+    # SET VULKAN SDK PATH - Can set manually by replacing ${VULKAN_ROOTS} in set command below
+    # Attempts to find the library by searching the default installation path
+    file(GLOB VULKAN_ROOTS "C:/VulkanSDK/*" LIMIT_COUNT 1)
+    message("VULKAN_ROOTS: ${VULKAN_ROOTS}")
+
+    set(ENV{VULKAN_SDK} ${VULKAN_ROOTS})
+    message("Vulkan SDK Path: $ENV{VULKAN_SDK}")
+endif()
+
+find_package(Vulkan REQUIRED)
 
 # Silences iterator warnings for C++17
 set(_SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING)
@@ -41,8 +54,8 @@ include_directories(VulkanInitium/Headers/
 
 file(GLOB THIRD_PARTY_SOURCES "VulkanInitium/Third Party/glad/src/glad.c")
 file(GLOB PROJECT_HEADERS VulkanInitium/Headers/*.hpp)
-file(GLOB PROJECT_SOURCES VulkanInitium/Sources/*.cpp)
-file(GLOB PROJECT_SHADERS VulkanInitium/Shaders/*.comp
+file(GLOB_RECURSE PROJECT_SOURCES VulkanInitium/Sources/*.cpp)
+file(GLOB_RECURSE PROJECT_SHADERS VulkanInitium/Shaders/*.comp
                           VulkanInitium/Shaders/*.frag
                           VulkanInitium/Shaders/*.geom
                           VulkanInitium/Shaders/*.vert)
@@ -62,9 +75,16 @@ add_definitions(-DGLFW_INCLUDE_NONE
 add_executable(${PROJECT_NAME} ${PROJECT_SOURCES} ${PROJECT_HEADERS}
                                ${PROJECT_SHADERS} ${PROJECT_CONFIGS}
                                ${THIRD_PARTY_SOURCES})
+
+
+message("Linking ${Vulkan_LIBRARY}")
+target_include_directories(${PROJECT_NAME} PUBLIC ${Vulkan_INCLUDE_DIRS})
+target_link_libraries(${PROJECT_NAME} ${Vulkan_LIBRARY})
+
 target_link_libraries(${PROJECT_NAME} assimp glfw
-                      ${GLFW_LIBRARIES} ${GLAD_LIBRARIES}
-                      BulletDynamics BulletCollision LinearMath)
+                        ${GLFW_LIBRARIES} ${GLAD_LIBRARIES}
+                        BulletDynamics BulletCollision LinearMath)
+
 set_target_properties(${PROJECT_NAME} PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${PROJECT_NAME})
 
