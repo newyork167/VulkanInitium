@@ -19,6 +19,9 @@ Hopefully this helps out those in the advanced computer graphics courses we are 
 ### What's in this Repo?
 This repo contains a basic main file and submodule links to common libraries that are used within computer graphics.
 
+## Future Plans
+I will make branches for basic rendering as I have time, and to the base branch I will add in the simple default cube in a non-intrusive way. 
+
 ### Prerequisites
 Vulkan Drivers: [LunarG Downloads](https://vulkan.lunarg.com/sdk/home), [Nvidia](https://developer.nvidia.com/vulkan-driver), [AMD](http://gpuopen.com/gaming-product/vulkan/), [Source Code](https://github.com/KhronosGroup/Vulkan-Hpp)
 
