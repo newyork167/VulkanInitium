@@ -1,8 +1,10 @@
 #define GLFW_INCLUDE_VULKAN
 #include "main.hpp"
+#include "classes/HelloTriangleApplication.hpp"
 
 int main() {
-	TestApplication app;
+	//TestApplication app;
+	HelloTriangleApplication app;
 
 	try {
 		app.run();
