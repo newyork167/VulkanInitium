@@ -1,6 +1,43 @@
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 2.8.12)
 project(VulkanInitium)
 set(CMAKE_CXX_STANDARD 17)
+set(_SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING)
+
+# CHANGEME when you want to not run in debug
+set(DEBUG TRUE)
+
+# Set external src folder
+set(CONAN_EXTERNAL_PATH ${CMAKE_CURRENT_SOURCE_DIR}/external)
+
+# Run conan install based on os/arch
+if(APPLE)
+    execute_process( COMMAND uname -m COMMAND tr -d '\n' OUTPUT_VARIABLE ARCHITECTURE )
+    if(${ARCHITECTURE} STREQUAL "arm64")
+        message("Building for Apple Silicon")
+        execute_process(COMMAND tools/m1.sh WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/tools)
+        execute_process(COMMAND conan install -if . ${CMAKE_SOURCE_DIR}/conanfile.py -e CONAN_EXTERNAL_PATH=${CONAN_EXTERNAL_PATH} --profile:build default --profile:host m1 --build=missing WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/)
+    else()
+        execute_process(COMMAND conan install -if . ${CMAKE_SOURCE_DIR}/conanfile.py -e CONAN_EXTERNAL_PATH=${CONAN_EXTERNAL_PATH} --build=missing WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/)
+    endif()
+else()
+    message("Building for Windows/Linux")
+    execute_process(COMMAND conan install -if . ${CMAKE_SOURCE_DIR}/conanfile.py -e CONAN_EXTERNAL_PATH=${CONAN_EXTERNAL_PATH} --build=missing WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/)
+endif()
+
+include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
+conan_basic_setup()
+
+set_directory_properties(PROPERTIES external/ ADDITIONAL_MAKE_CLEAN_FILES)
+
+set(CMAKE_MODULE_PATH ${CMAKE_BINARY_DIR})
+
+find_package(imgui CONFIG)
+find_package(glad MODULE)
+find_package(glfw3 MODULE REQUIRED)
+find_package(stb MODULE)
+find_package(glm MODULE)
+find_package(fmt MODULE)
+find_package(spdlog MODULE)
 
 # Setup and find Vulkan SDK
 if(WIN32)
@@ -14,9 +51,6 @@ if(WIN32)
 endif()
 
 find_package(Vulkan REQUIRED)
-
-# Silences iterator warnings for C++17
-set(_SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING)
 
 option(GLFW_BUILD_DOCS OFF)
 option(GLFW_BUILD_EXAMPLES OFF)
@@ -44,26 +78,25 @@ else()
     endif()
 endif()
 
-include_directories(VulkanInitium/Headers/
-                    "VulkanInitium/Third Party/assimp/include/"
-                    "VulkanInitium/Third Party/bullet/src/"
-                    "VulkanInitium/Third Party/glad/include/"
-                    "VulkanInitium/Third Party/glfw/include/"
-                    "VulkanInitium/Third Party/glm/"
-                    "VulkanInitium/Third Party/stb/")
+include_directories(include/
+                    "src/")
 
-file(GLOB THIRD_PARTY_SOURCES "VulkanInitium/Third Party/glad/src/glad.c")
-file(GLOB PROJECT_HEADERS VulkanInitium/Headers/*.hpp)
-file(GLOB_RECURSE PROJECT_SOURCES VulkanInitium/Sources/*.cpp)
-file(GLOB_RECURSE PROJECT_SHADERS VulkanInitium/Shaders/*.comp
-                          VulkanInitium/Shaders/*.frag
-                          VulkanInitium/Shaders/*.geom
-                          VulkanInitium/Shaders/*.vert)
+# file(GLOB THIRD_PARTY_SOURCES "VulkanInitium/Third Party/glad/src/glad.c")
+file(GLOB PROJECT_HEADERS include/*.hpp)
+file(GLOB_RECURSE PROJECT_SOURCES src/*.cpp)
+file(GLOB_RECURSE PROJECT_SHADERS data/*.comp
+                          data/*.frag 
+                          data/*.fs
+                          data/*.geom
+                          data/*.vert 
+                          data/*.vs)
 file(GLOB PROJECT_CONFIGS CMakeLists.txt
                           Readme.md
                          .gitattributes
                          .gitignore
-                         .gitmodules)
+                         .gitmodules
+                         conanfile.py
+                         dependencies.py)
 
 source_group("Headers" FILES ${PROJECT_HEADERS})
 source_group("Shaders" FILES ${PROJECT_SHADERS})
@@ -79,11 +112,11 @@ add_executable(${PROJECT_NAME} ${PROJECT_SOURCES} ${PROJECT_HEADERS}
 
 message("Linking ${Vulkan_LIBRARY}")
 target_include_directories(${PROJECT_NAME} PUBLIC ${Vulkan_INCLUDE_DIRS})
-target_link_libraries(${PROJECT_NAME} ${Vulkan_LIBRARY})
 
-target_link_libraries(${PROJECT_NAME} assimp glfw
-                        ${GLFW_LIBRARIES} ${GLAD_LIBRARIES}
-                        BulletDynamics BulletCollision LinearMath)
+conan_target_link_libraries(${PROJECT_NAME} ${CONAN_LIBS}
+        PRIVATE
+        Boost::filesystem)
+conan_target_link_libraries(${PROJECT_NAME})
 
 set_target_properties(${PROJECT_NAME} PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${PROJECT_NAME})
