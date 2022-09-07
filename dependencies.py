@@ -1,3 +1,5 @@
+import platform
+
 requires = (
     ("assimp/5.0.1"),
     ("fmt/9.0.0"),
@@ -9,8 +11,11 @@ requires = (
     ("stb/20200203"),
     ("imgui/1.79"),
     ("spdlog/1.10.0"),
-    ("boost/1.79.0")
+    ("boost/1.79.0"),
 )
+
+if platform.system() in ["Darwin"]:
+    requires = requires + (("moltenvk/1.1.10"),)
 
 options = '''
   glew:shared=False

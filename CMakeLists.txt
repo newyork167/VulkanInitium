@@ -4,10 +4,24 @@ set(CMAKE_CXX_STANDARD 17)
 set(_SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING)
 
 # CHANGEME when you want to not run in debug
-set(DEBUG TRUE)
+set(NDEBUG TRUE)
 
 # Set external src folder
 set(CONAN_EXTERNAL_PATH ${CMAKE_CURRENT_SOURCE_DIR}/external)
+
+option(GLFW_BUILD_DOCS OFF)
+option(GLFW_BUILD_EXAMPLES OFF)
+option(GLFW_BUILD_TESTS OFF)
+
+option(ASSIMP_BUILD_ASSIMP_TOOLS OFF)
+option(ASSIMP_BUILD_SAMPLES OFF)
+option(ASSIMP_BUILD_TESTS OFF)
+
+option(BUILD_BULLET2_DEMOS OFF)
+option(BUILD_CPU_DEMOS OFF)
+option(BUILD_EXTRAS OFF)
+option(BUILD_OPENGL3_DEMOS OFF)
+option(BUILD_UNIT_TESTS OFF)
 
 # Run conan install based on os/arch
 if(APPLE)
@@ -15,7 +29,7 @@ if(APPLE)
     if(${ARCHITECTURE} STREQUAL "arm64")
         message("Building for Apple Silicon")
         execute_process(COMMAND tools/m1.sh WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/tools)
-        execute_process(COMMAND conan install -if . ${CMAKE_SOURCE_DIR}/conanfile.py -e CONAN_EXTERNAL_PATH=${CONAN_EXTERNAL_PATH} --profile:build default --profile:host m1 --build=missing WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/)
+        execute_process(COMMAND conan install -if . ${CMAKE_SOURCE_DIR}/conanfile.py -e CONAN_EXTERNAL_PATH=${CONAN_EXTERNAL_PATH} --profile:build m1 --profile:host m1 --build=missing WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/)
     else()
         execute_process(COMMAND conan install -if . ${CMAKE_SOURCE_DIR}/conanfile.py -e CONAN_EXTERNAL_PATH=${CONAN_EXTERNAL_PATH} --build=missing WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/)
     endif()
@@ -39,6 +53,10 @@ find_package(glm MODULE)
 find_package(fmt MODULE)
 find_package(spdlog MODULE)
 
+# Dependencies -- Boost
+Set(Boost_INSTALL_DIR ${CONAN_BOOST_ROOT})
+find_package(Boost 1.79.0 COMPONENTS filesystem)
+
 # Setup and find Vulkan SDK
 if(WIN32)
     # SET VULKAN SDK PATH - Can set manually by replacing ${VULKAN_ROOTS} in set command below
@@ -48,26 +66,11 @@ if(WIN32)
 
     set(ENV{VULKAN_SDK} ${VULKAN_ROOTS})
     message("Vulkan SDK Path: $ENV{VULKAN_SDK}")
+
+    find_package(Vulkan REQUIRED)
+elseif(APPLE)
+    find_package(moltenvk REQUIRED)
 endif()
-
-find_package(Vulkan REQUIRED)
-
-option(GLFW_BUILD_DOCS OFF)
-option(GLFW_BUILD_EXAMPLES OFF)
-option(GLFW_BUILD_TESTS OFF)
-add_subdirectory("VulkanInitium/Third Party/glfw")
-
-option(ASSIMP_BUILD_ASSIMP_TOOLS OFF)
-option(ASSIMP_BUILD_SAMPLES OFF)
-option(ASSIMP_BUILD_TESTS OFF)
-add_subdirectory("VulkanInitium/Third Party/assimp")
-
-option(BUILD_BULLET2_DEMOS OFF)
-option(BUILD_CPU_DEMOS OFF)
-option(BUILD_EXTRAS OFF)
-option(BUILD_OPENGL3_DEMOS OFF)
-option(BUILD_UNIT_TESTS OFF)
-add_subdirectory("VulkanInitium/Third Party/bullet")
 
 if(MSVC)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4")
@@ -121,7 +124,27 @@ conan_target_link_libraries(${PROJECT_NAME})
 set_target_properties(${PROJECT_NAME} PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${PROJECT_NAME})
 
-add_custom_command(
-    TARGET ${PROJECT_NAME} POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/VulkanInitium/Shaders $<TARGET_FILE_DIR:${PROJECT_NAME}>
-    DEPENDS ${PROJECT_SHADERS})
+# Copy Assets
+file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/data)
+file(COPY ${CMAKE_CURRENT_LIST_DIR}/data DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+
+# If we are debugging, symlink the shaders directory to allow live reloading/editing
+if (NDEBUG)
+    set(DEBUG_SHADER_SOURCE \"${CMAKE_CURRENT_SOURCE_DIR}/data/shaders\")
+    set(DEBUG_SHADER_DESTINATION \"${CMAKE_CURRENT_BINARY_DIR}/data/shaders\")
+
+    find_package (Python3 COMPONENTS Interpreter Development REQUIRED)
+    message("Python3 found for linking shaders?: ${Python3_FOUND}: ${Python3_EXECUTABLE}")
+
+    if(Python3_FOUND)
+        message("Attempting to symlink shaders for live reloading from ${DEBUG_SHADER_SOURCE} to ${DEBUG_SHADER_DESTINATION}")
+        message("")
+        add_custom_command(
+                TARGET ${PROJECT_NAME} POST_BUILD
+                COMMAND ${Python3_EXECUTABLE} "${CMAKE_CURRENT_SOURCE_DIR}/tools/debug_SymlinkShaders.py"
+                -s ${CMAKE_CURRENT_SOURCE_DIR}/data/shaders
+                -d ${CMAKE_CURRENT_BINARY_DIR}/bin/shaders)
+    else()
+        message("Symlinking shaders for debug requires python 3")
+    endif()
+endif()

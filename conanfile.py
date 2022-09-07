@@ -15,7 +15,7 @@ class GlintConan(ConanFile):
     settings = "os", "compiler", "build_type", "arch"
 
     requires = dependencies.requires
-    generators = ["cmake", "cmake_find_package"]
+    generators = ["cmake", "cmake_find_package", "CMakeDeps", "CMakeToolchain"]
     default_options = dependencies.options
 
     def build(self):
